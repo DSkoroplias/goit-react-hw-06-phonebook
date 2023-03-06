@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { nanoid } from 'nanoid';
+import { useSelector, useDispatch } from 'react-redux';
 
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
@@ -7,76 +6,65 @@ import ContactFilter from './ContactFilter/ContactFilter';
 
 // import items from './items';
 
+import { addContact, removeContact } from '../../redux/contacts/contacts-slice';
+import { setFilter } from '../../redux/filter/filter-slice';
+import {
+  getAllContacts,
+  getFilteredContacts,
+} from '../../redux/contacts/contacts-selectors';
+
+import { getFilter } from '../../redux/filter/filter-selector';
+
 import styles from './phonebook.module.scss';
 
 const Phonebook = () => {
-  const [contacts, setContacts] = useState(() => {
-    const contacts = JSON.parse(localStorage.getItem('my-contacts'));
-    return contacts?.length ? contacts : [];
-  });
-  const [filter, setFilter] = useState('');
+  const filteredContacts = useSelector(getFilteredContacts);
+  const allContacts = useSelector(getAllContacts);
+  const filter = useSelector(getFilter);
 
-  useEffect(() => {
-    localStorage.setItem('my-contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   localStorage.setItem('my-contacts', JSON.stringify(contacts));
+  // }, [contacts]);
 
   const isDuplicate = name => {
     const normalizedName = name.toUpperCase();
 
-    const result = contacts.find(({ name }) => {
+    const result = allContacts.find(({ name }) => {
       return name.toUpperCase() === normalizedName;
     });
     return Boolean(result);
   };
 
-  const addContact = ({ name, number }) => {
+  const handleAddContact = ({ name, number }) => {
     if (isDuplicate(name)) {
       alert(`${name} is already in contacts`);
       return false;
     }
-    setContacts(prevContacts => {
-      const newContact = {
-        id: nanoid(),
-        name,
-        number,
-      };
-      return [newContact, ...prevContacts];
-    });
-    return true;
+
+    dispatch(addContact({ name, number }));
   };
 
-  const removeContact = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
+  const handleRemoveContact = id => {
+    dispatch(removeContact(id));
   };
 
-  const handleFilter = ({ target }) => setFilter(target.value);
-
-  const getFilteredContact = () => {
-    if (!filter) {
-      return contacts;
-    }
-    const normalizedFilter = filter.toLowerCase();
-    const result = contacts.filter(({ name }) => {
-      return name.toLowerCase().includes(normalizedFilter);
-    });
-
-    return result;
+  const handleFilter = ({ target }) => {
+    dispatch(setFilter(target.value));
   };
 
-  const filteredContacts = getFilteredContact();
   const isContacts = Boolean(filteredContacts.length);
 
   return (
     <div className={styles.wrapper}>
       <h1>Phonebook</h1>
-      <ContactForm onSubmit={addContact} />
+      <ContactForm onSubmit={handleAddContact} />
       <h1>Contacts</h1>
-      <ContactFilter handleChange={handleFilter} />
+      <ContactFilter value={filter} handleChange={handleFilter} />
       {isContacts && (
         <ContactList
-          removeContact={removeContact}
+          removeContact={handleRemoveContact}
           contacts={filteredContacts}
         />
       )}
