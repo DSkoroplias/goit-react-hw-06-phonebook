@@ -1,1 +1,0 @@
-{"version":3,"file":"static/js/434.c260e4df.chunk.js","mappings":"gKAQA,UARmB,WACjB,OACE,+BACE,yCAGL,C","sources":["page/MyContacts/MyContacts.jsx"],"sourcesContent":["const MyContacts = () => {\n  return (\n    <>\n      <h1>My contacts</h1>\n    </>\n  );\n};\n\nexport default MyContacts;\n"],"names":[],"sourceRoot":""}
