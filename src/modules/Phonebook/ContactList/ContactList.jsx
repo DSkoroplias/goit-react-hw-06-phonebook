@@ -1,18 +1,30 @@
+import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
+
+import { removeContact } from 'redux/contacts/contacts-slice';
+import { getFilteredContacts } from 'redux/contacts/contacts-selectors';
 
 import ContactListEl from '../ContactListEl/ContactListEl';
 
 import styles from './contact-list.module.scss';
 
-const ContactList = ({ removeContact, contacts }) => {
+const ContactList = () => {
+  const filteredContacts = useSelector(getFilteredContacts);
+
+  const dispatch = useDispatch();
+
+  const handleRemoveContact = id => {
+    dispatch(removeContact(id));
+  };
+
   return (
     <div className={styles.contacts}>
-      {contacts.map(({ id, name, number }) => (
+      {filteredContacts.map(({ id, name, number }) => (
         <ContactListEl
           key={id}
           name={name}
           number={number}
-          removeContact={() => removeContact(id)}
+          removeContact={() => handleRemoveContact(id)}
         />
       ))}
     </div>
